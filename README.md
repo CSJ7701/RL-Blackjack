@@ -1,4 +1,11 @@
-To get started, run the following:
+# Usage
+
+## General
+```
+$ python -m rl_blackjack
+```
+
+## Using nix and/or poetry
 
 ```
 $ nix develop
