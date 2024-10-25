@@ -71,3 +71,4 @@ class Dealer:
         Reset the dealer's hand, clearing all cards for the next round.
         """
         self.hand = []  # Empty the dealer's hand to prepare for a new round
+ 
