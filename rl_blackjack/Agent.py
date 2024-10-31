@@ -1,6 +1,13 @@
+from typing import Tuple
+from Actions import Action
+from MonteCarlo import MonteCarlo
+from random import random, choice
+
 class Agent:
-    def __init__(self):
+    def __init__(self, policy: MonteCarlo, epsilon: float = 0.2):
         self.hand = []
+        self.policy = policy
+        self.epsilon = epsilon # Probability of exploration
 
     def receiveCard(self, card: str) -> None:
         """
@@ -28,8 +35,14 @@ class Agent:
 
         return value
 
-    def playTurn(self) -> None:
-        ...
+    def playTurn(self, state: Tuple[int,int]) -> None:
+        if random() < self.epsilon:
+            # exclude the best action if possible
+            best_action = self.policy.get_best_action(state)
+            possible_actions = [action for action in Action if action != best_action]
+            action = choice(possible_actions) if possible_actions else best_action
+        else:
+            action = self.policy.get_best_action(state)
 
     def resetHand(self) -> None:
         """
@@ -39,12 +52,17 @@ class Agent:
 
 
 if __name__ == "__main__":
-    agent = Agent()
+    policy = MonteCarlo()
+    agent = Agent(policy)
     agent.receiveCard("5")
     agent.receiveCard("8")
     print("Agent's hand:", agent.hand)
     print("Hand value:", agent.calculateHand())
-    
-    agent.playTurn()
+
+    agent_hand = agent.calculateHand()
+    dealer_hand = 5 # placeholder
+    state = (agent_hand,dealer_hand)
+
+    agent.playTurn(state)
     agent.resetHand()
     print("Hand after reset:", agent.hand)

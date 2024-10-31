@@ -1,5 +1,6 @@
 from Agent import Agent
 from Dealer import Dealer
+from MonteCarlo import MonteCarlo
 from Shoe import Shoe
 
 class Table:
@@ -34,7 +35,8 @@ class Table:
         """
 
         for agent in self.agents:
-            agent.playTurn()
+            currentState = (agent.calculateHand(), self.dealer.calculateHand(True))
+            agent.playTurn(currentState)
 
         # After all the agents have played
         self.dealer.playTurn()
@@ -53,10 +55,11 @@ if __name__ == "__main__":
     shoe = Shoe()
     dealer = Dealer(shoe)
     table = Table(shoe, dealer)
+    policy = MonteCarlo()
 
     # Add agents to the table
-    table.add(Agent())
-    table.add(Agent())
+    table.add(Agent(policy))
+    table.add(Agent(policy))
 
     # Deal initial cards
     table.dealInitial()

@@ -7,39 +7,42 @@ class MonteCarlo:
         # States defined as a tuple - (agent hand value, dealer card)
         # Values are actions, initially set to "HIT" for simplicity
 
-        self.policy: Dict[Tuple[int,int],Action] = {}
+        self.policy: Dict[Tuple[int,int],Dict[Action,int]] = {}
         self.state_count: Dict[Tuple[int,int],int] = {} # Counts the number of times a state has been visited. For discounting?
 
-    def initialize_state(self, agent_value: int, dealer_card: int) -> None:
+    def initialize_state(self, state: Tuple[int,int]) -> None:
         """
         Initialize a state with a default action.
-        ... Explain later?
-        :param agent_value: Total hand value of the agent.
-        :param dealer_card: The dealer's visible card value.
+        :param state: Tuple with agents hand value and dealers hand value.
         """
-
-        state = (agent_value, dealer_card)
         if state not in self.policy:
-            self.policy[state] = Action.HIT
+            self.policy[state] = {Action.HIT: 0}
 
-    def update_policy(self, agent_value: int, dealer_card: int, best_action: Action) -> None:
+    def update_policy(self, state: Tuple[int,int], action: Action, value: int) -> None:
         """
         Update policy manually. Changes the action for a given state.
-        :param agent_value: Total hand value for the agent.
-        :param dealer_card: The dealers visible card.
-        :param best_action: The action that is 'best' for this state.
+        :param state: Tuple with agent and dealers' hand values
+        :param action: The action to update for this state.
+        :param value: The value to assign the action
         """
-        state = (agent_value, dealer_card)
-        self.initialize_state(agent_value,dealer_card)
-        self.policy[state] = best_action
+        self.initialize_state(state)
+        self.policy[state] = {action: value}
+        
 
-    def get_best_action(self, agent_value: int, dealer_card: int) -> Action:
+    def get_best_action(self, state: Tuple[int,int]) -> Action:
         """
         Find the best known action for the given state, based on the list.
-        :param agent_value: Total value of the agent's hand.
-        :param dealer_card: The dealers visible card value.
+        :param state: State. Tuple of agent's hand value and dealer's visible hand.
         :return: The 'best' action for this state.
         """
-        state = (agent_value, dealer_card)
-        self.initialize_state(agent_value, dealer_card)
-        return self.policy[state]
+        self.initialize_state(state)
+
+        # This is somewhat arcane, but should return the Action with the highest value.
+        # Based on the dict structure I use, where policy is a Dict that looks like:
+        # Policy = {
+        #            (agent_hand,dealer_hand): {
+        #                                        Action: Value
+        #                                      }
+        #          }
+
+        return max(self.policy[state].items(), key=lambda k: k[1])[0]
