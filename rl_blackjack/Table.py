@@ -29,17 +29,28 @@ class Table:
         # Dealer draws last
         self.dealer.drawInitial()
 
-    def playTurns(self) -> None:
+    def playEpisode(self) -> None:
         """
         Each agent takes a turn, then the dealer plays.
         """
-
+        
         for agent in self.agents:
             currentState = (agent.calculateHand(), self.dealer.calculateHand(True))
             agent.playTurn(currentState)
 
         # After all the agents have played
         self.dealer.playTurn()
+
+    def checkWin(self) -> None:
+        """
+        Checks whether someone has won or lost.
+        Updates an agent's policy accordingly.
+        """
+        dealer_hand = dealer.checkHand()
+        
+        for agent in self.agents:
+            raise ValueError("NOt Implemented")
+            
 
     def reset(self) -> None:
         """
@@ -70,7 +81,7 @@ if __name__ == "__main__":
     print(f"Dealer initial hand: {dealer.checkHand()}\n")
 
     # Agents and dealer play their turns
-    table.playTurns()
+    table.playEpisode()
 
     # Show final hands and values
     print("Dealer's final hand: ", "Value:", dealer.calculateHand()," | ", dealer.hand)
