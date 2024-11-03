@@ -42,6 +42,9 @@ class Dealer:
         value = 0  # Total value of the hand
         aces = 0  # Count of Aces in the hand
 
+        if self.hand == []:
+            raise ValueError("Hand has not been initialized.")
+
         if hideHand:
             hand = self.hand[0]
         else:

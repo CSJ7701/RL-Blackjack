@@ -1,12 +1,16 @@
 from typing import Tuple
+from Actions import Action
 from Policy import Policy
 
 class Agent:
-    def __init__(self, cutoff: int = 20):
+    def __init__(self, cutoff: int = 20, win_reward: int = 1, loss_reward: int = -1, draw_reward: int = 0):
         self.policy = Policy(cutoff)
         self.hand = []
         self.states = []
         self.usable_ace = False
+        self.win_reward = win_reward
+        self.loss_reward = loss_reward
+        self.draw_reward = draw_reward
 
     def receiveCard(self, card: str) -> None:
         """
@@ -41,16 +45,20 @@ class Agent:
         current_hand = self.calculateHand()
         usable_ace = self.usable_ace
         state = (current_hand, dealer_hand, usable_ace)
-        self.states.append(state)
+        if state not in self.states:
+            self.states.append(state)
 
     def rewardUpdate(self, reward: int) -> None:
         # receive reward from Table class
-        # pass reward to policy to update all states in this episode.
-        ...
+        # For each statein self.states, update reward in the policy.
+        for state in self.states:
+            self.policy.update(state, reward)
+        
 
-    def playTurn(self) -> None:
-        # Call policy to return the action to take.
-        ...
+    def playTurn(self, dealers_hand: int) -> Action:
+        self.stateUpdate(dealers_hand)
+        action = self.policy.chooseAction(self.calculateHand())
+        return action
 
     def reset(self) -> None:
         """
