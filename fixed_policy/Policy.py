@@ -57,6 +57,11 @@ class Policy:
         # Plotting the 3d surface
         ax.plot_trisurf(agent_hands, dealer_hands, scores, cmap="viridis", edgecolor="none")
 
+        # Limits
+        # These values come from the example in my RL textbook.
+        ax.set_xlim(12,21)
+        ax.set_ylim(1,11)
+        
         # Labels
         ax.set_xlabel("Agent Hand")
         ax.set_ylabel("Dealer Hand")

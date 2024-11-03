@@ -155,5 +155,9 @@ if __name__ == "__main__":
    # print(agent.policy.state_values)
    # print(len(agent.policy.state_values))
 
-    visualizer = BlackjackPolicyVisualizer(state_values = agent.policy.state_values)
-    visualizer.plot_state_values(usable_ace_p=True)
+    interactive = True
+    if interactive:
+        visualizer = BlackjackPolicyVisualizer(state_values = agent.policy.state_values)
+        visualizer.plot_state_values(usable_ace_p=True)
+    else:
+        agent.policy.stateValuePlot(False, "./Plot")
