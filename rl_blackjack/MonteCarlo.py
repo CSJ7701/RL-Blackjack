@@ -1,3 +1,5 @@
+import os
+import pickle
 from Actions import Action
 from typing import Dict, Tuple
 
@@ -7,8 +9,8 @@ class MonteCarlo:
         # States defined as a tuple - (agent hand value, dealer card)
         # Values are actions, initially set to "HIT" for simplicity
 
-        self.policy: Dict[Tuple[int,int],Dict[Action,int]] = {}
-        self.state_count: Dict[Tuple[int,int],int] = {} # Counts the number of times a state has been visited. For discounting?
+        self.policy: Dict[Tuple[int,int],Dict[Action,float]] = {}
+        self.state_count: Dict[Tuple[Tuple[int,int],Action],int] = {} # Counts the number of times a state has been visited. For discounting?
 
     def initialize_state(self, state: Tuple[int,int]) -> None:
         """
@@ -16,9 +18,13 @@ class MonteCarlo:
         :param state: Tuple with agents hand value and dealers hand value.
         """
         if state not in self.policy:
-            self.policy[state] = {Action.HIT: 0}
+            self.policy[state] = {Action.HIT: 0, Action.STAND: 0}
+        if (state, Action.HIT) not in self.state_count:
+            self.state_count[state,Action.HIT] = 0
+        if (state, Action.STAND) not in self.state_count:
+            self.state_count[state,Action.STAND] = 0
 
-    def update_policy(self, state: Tuple[int,int], action: Action, value: int) -> None:
+    def update(self, state: Tuple[int,int], action: Action, reward: int) -> None:
         """
         Update policy manually. Changes the action for a given state.
         :param state: Tuple with agent and dealers' hand values
@@ -26,8 +32,13 @@ class MonteCarlo:
         :param value: The value to assign the action
         """
         self.initialize_state(state)
-        self.policy[state] = {action: value}
-        
+        self.state_count[state,action] += 1
+        # print(state)
+        # print(action)
+        action_value = self.policy[state][action]
+        action_count = self.state_count[state,action]
+        self.policy[state][action] = action_value+(reward-action_value)/action_count
+
 
     def get_best_action(self, state: Tuple[int,int]) -> Action:
         """
@@ -46,3 +57,28 @@ class MonteCarlo:
         #          }
 
         return max(self.policy[state].items(), key=lambda k: k[1])[0]
+
+    def save(self, filename: str) -> None:
+        """
+        Save the policy to a .MonteCarlo file.
+        :param filename: Base filename (without extension) to save to.
+        """
+        full_filename = f"{filename}.MonteCarlo"
+        with open(full_filename, 'wb') as f:
+            pickle.dump(self.policy, f)
+        print(f"Policy saved to {full_filename}")
+
+    def load(self, filename: str) -> None:
+        """
+        Load the policy from a .MonteCarlo file.
+        :param filename: Name of the file to load (without extension).
+        """
+        full_filename = f"{filename}.MonteCarlo"
+
+        if not os.path.exists(full_filename):
+            print(f"File {full_filename} not found. Policy not loaded.")
+            return
+        with open(full_filename, 'rb') as f:
+            self.policy = pickle.load(f)
+        print(f"Policy loaded from {full_filename}")
+        

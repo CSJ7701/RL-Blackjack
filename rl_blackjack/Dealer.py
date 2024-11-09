@@ -1,6 +1,10 @@
 from Agent import Agent
 from Shoe import Shoe
 
+### TODO: Logic Issue
+###       calculateHand(True) will always treat ace as high.
+###       Should propably find a way to let agent account for 1 AND 11...
+
 class Dealer:
     def __init__(self, shoe: Shoe):
         """
@@ -10,6 +14,7 @@ class Dealer:
         """
         self.hand = []  # Dealer's hand starts empty
         self.shoe = shoe  # The shoe is used to draw cards
+        self.usable_ace: bool = False
 
     def drawInitial(self) -> list[str]:
         """
@@ -43,7 +48,7 @@ class Dealer:
         aces = 0  # Count of Aces in the hand
 
         if hideHand:
-            hand = self.hand[0]
+            hand = [self.hand[0]]
         else:
             hand = self.hand
 
@@ -59,7 +64,6 @@ class Dealer:
         while value > 21 and aces > 0:
             value -= 10  # Convert one Ace from 11 to 1
             aces -= 1  # Reduce the count of Aces being treated as 11
-
         return value
 
     def checkHand(self, hideHand: bool = False) -> list[str]:

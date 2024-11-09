@@ -31,7 +31,8 @@ class Shoe:
             The number of decks used to create the shoe. Defaults to 1 deck.
         """
         # Initialize the deck with the specified number of decks
-        self.deck = self.createDeck(num_decks)
+        self.num_decks=num_decks
+        self.deck = self.createDeck(self.num_decks)
 
     def createDeck(self, num_decks: int) -> dict[str, int]:
         """
@@ -105,6 +106,9 @@ class Shoe:
         for card, count in self.deck.items():
             bar = '█' * count
             print(f"{card:>2}: {bar:<{space_between}} ({count:>{3}})")
+
+    def reset(self):
+        self.deck = self.createDeck(self.num_decks)
 
 
 if __name__ == "__main__":

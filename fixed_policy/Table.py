@@ -111,8 +111,8 @@ class Table:
                 action = agent.playTurn(dealer_hand_hide)
                 if action == Action.HIT:
                     self.dealer.deal(agent)
+                    agent.stateUpdate(dealer_hand_hide)
                     if agent.calculateHand() > 21:
-                        agent.stateUpdate(dealer_hand_hide)
                         agent.rewardUpdate(agent.loss_reward)
                         break # No further action, agent busted
             agent.stateUpdate(dealer_hand_hide)

@@ -3,11 +3,19 @@ from Actions import Action
 from MonteCarlo import MonteCarlo
 from random import random, choice
 
+## TODO: agent never adds 'stand' to stateActions
+
 class Agent:
-    def __init__(self, policy: MonteCarlo, epsilon: float = 0.2):
+    def __init__(self, policy: MonteCarlo, name: str = "Agent", epsilon: float = 0.2, win_reward: int = 1, loss_reward: int = -1, draw_reward: int = 0):
+        self.name = name
         self.hand = []
+        self.states = []
+        self.stateActions = []
         self.policy = policy
         self.epsilon = epsilon # Probability of exploration
+        self.win_reward = win_reward
+        self.loss_reward = loss_reward
+        self.draw_reward = draw_reward
 
     def receiveCard(self, card: str) -> None:
         """
@@ -35,7 +43,9 @@ class Agent:
 
         return value
 
-    def playTurn(self, state: Tuple[int,int]) -> None:
+    def playTurn(self, dealer_hand: int) -> Action:
+        state = (self.calculateHand(), dealer_hand)
+        self.stateUpdate(dealer_hand)
         if random() < self.epsilon:
             # exclude the best action if possible
             best_action = self.policy.get_best_action(state)
@@ -43,12 +53,40 @@ class Agent:
             action = choice(possible_actions) if possible_actions else best_action
         else:
             action = self.policy.get_best_action(state)
+        self.stateActions.append(action) # Keep track of the actions taken, in order
+        return action
 
-    def resetHand(self) -> None:
+    def stateUpdate(self, dealer_hand: int) -> None:
+        """
+        Takes dealer's hand and updates current state.
+        :param dealer_hand: Integer value of the dealer's visible card.
+        """
+        state = Tuple[int,int]
+        current_hand = self.calculateHand()
+        state = (current_hand, dealer_hand)
+        if state not in self.states:
+            self.states.append(state)
+
+    def rewardUpdate(self, reward: int) -> None:
+        """
+        Receive a reward from the table class, and use it to update every state/action pair in this hand.
+        :param reward: The reward from win/loss/draw in this hand.
+        """
+        # print(f"States: {self.states}")
+        # print(f"Actions: {self.stateActions}")
+        # for state, action in zip(self.states, self.stateActions):
+            # print(f"State: {state} with action {action} = {reward}")
+        # print(self.policy.state_count)
+        for state, action in zip(self.states, self.stateActions):
+            self.policy.update(state, action, reward)
+
+    def reset(self) -> None:
         """
         Clear the agent's hand for a new round.
         """
         self.hand = []
+        self.states = []
+        self.stateActions = []
 
 
 if __name__ == "__main__":
