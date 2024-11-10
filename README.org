@@ -1,0 +1,105 @@
+* RL Blackjack
+
+This project explores foundational *reinforcement learning* concepts with a focus on *Monte Carlo (MC) methods*, applied to a blackjack simulation. It supports experimentation with both fixed policies and adaptive policies that evolve over time.
+
+* Project Structure
+
+The project consists of two primary modules, each targeting different applications of MC methods within reinforcement learning.
+
+#+begin_src
+.
+├── fixed_policy
+│   ├── Actions.py        # Defines available actions
+│   ├── Agent.py          # Agent class with fixed policy
+│   ├── Dealer.py         # Simulates dealer's behavior
+│   ├── __init__.py       # Package initialization
+│   ├── __main__.py       # TODO: Main script for fixed policy environment
+│   ├── Policy.py         # Defines the agent's fixed policy
+│   ├── Shoe.py           # Simulates a deck of cards
+│   ├── Table.py          # Manages the game environment
+│   └── Visualizer.py     # Visualizes agent performance
+├── flake.lock            # Nix lockfile
+├── flake.nix             # Nix flake for environment setup
+├── poetry.lock           # Poetry lockfile for dependencies
+├── pyproject.toml        # Project configuration
+├── README.md             # Project documentation
+└── rl_blackjack
+    ├── Actions.py        # Defines available actions
+    ├── Agent.py          # Agent class using Monte Carlo methods
+    ├── Dealer.py         # Simulates dealer's behavior
+    ├── __init__.py       # Package initialization
+    ├── __main__.py       # Main script for RL-based blackjack
+    ├── MonteCarlo.py     # Implements MC methods for policy evaluation
+    ├── Shoe.py           # Simulates a deck of cards
+    └── Table.py          # Manages the game environment
+#+end_src
+
+** Module Overview
+
+- *fixed_policy*: Contains a basic agent with a fixed policy (e.g., "Hit if hand value is below X"). This module helps reinforce fundamental RL concepts, such as state-value population and episodic environment setup.
+
+- *rl_blackjack*: Extends the fixed policy module with a *Monte Carlo control strategy*, where the agent updates its policy over time. Using an *epsilon-greedy* approach, the agent explores the state-action space, iteratively populating values and refining its strategy.
+
+* Usage
+
+** Basic Usage
+
+To run the RL-based blackjack simulation:
+
+#+begin_src bash
+$ python -m rl_blackjack
+#+end_src
+
+** Using Nix and Poetry
+
+For users with Nix and Poetry, the environment can be activated, and the project can be run with:
+
+#+begin_src bash
+$ nix develop
+$ poetry run python -m rl_blackjack
+#+end_src
+
+** Command-Line Options
+
+The *rl_blackjack* module provides command-line options for training and evaluating policies.
+
+*** Train a New Policy
+
+To train a new policy, specify the number of episodes:
+
+#+begin_src bash
+$ python -m rl_blackjack --train 1000
+#+end_src
+
+*** Save a Trained Policy
+
+To save a trained policy as a *.MonteCarlo* file, specify the episode count and filename:
+
+#+begin_src bash
+$ python -m rl_blackjack --train 50000 --policy First_Policy
+#+end_src
+
+This trains a policy on 50,000 episodes and saves it as *First_Policy.MonteCarlo* in the root project directory using Python’s pickle module.
+
+*** Evaluate a Policy’s Performance
+
+To evaluate a saved policy, specify the number of episodes and use the *--policy* option if applicable:
+
+#+begin_src bash
+$ python -m rl_blackjack --eval 10000
+$ python -m rl_blackjack --eval 10000 --policy First_Policy
+#+end_src
+
+Running *--eval* alone evaluates a blank policy; adding *--policy* specifies a saved policy file.
+
+*** Fixed Policy Module
+
+To explore the *fixed_policy* module:
+
+#+begin_src bash
+$ python fixed_policy/Table.py
+#+end_src
+
+This runs an agent with a fixed policy for 500,000 episodes, visualizing score by agent and dealer hand values in a browser plot upon completion.
+
+By default, the plot shows states where the agent’s ace=11 (usable ace). You can modify the code to display non-usable ace states or adjust the agent's fixed policy by changing *agent.cutoff*, rewards, and episode count.
