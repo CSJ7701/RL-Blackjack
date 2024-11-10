@@ -42,12 +42,10 @@ The project consists of two primary modules, each targeting different applicatio
 
 * Usage
 
-** Basic Usage
-
 To run the RL-based blackjack simulation:
 
 #+begin_src bash
-$ python -m rl_blackjack
+$ python -m rl_blackjack [options]
 #+end_src
 
 ** Using Nix and Poetry
