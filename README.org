@@ -54,7 +54,7 @@ For users with Nix and Poetry, the environment can be activated, and the project
 
 #+begin_src bash
 $ nix develop
-$ poetry run python -m rl_blackjack
+$ poetry run python -m rl_blackjack [options]
 #+end_src
 
 ** Command-Line Options
