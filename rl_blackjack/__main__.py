@@ -5,11 +5,11 @@ from Shoe import Shoe
 from Dealer import Dealer
 from Table import Table
 from Agent import Agent
-from Player import Player
 from Actions import Action
 from MonteCarlo import MonteCarlo
+from pprint import pprint
 
-def train_agent(episode_count: int, save_policy_name: str) -> None:
+def train_agent(episode_count: int, generation_count: int, epsilon: float, save_policy_name: str) -> None:
     shoe=Shoe()
     dealer=Dealer(shoe)
     table=Table(shoe,dealer)
@@ -20,10 +20,14 @@ def train_agent(episode_count: int, save_policy_name: str) -> None:
 
     table.add(Agent(policy))
 
-    for _ in range(episode_count):
-        table.dealInitial()
-        table.playEpisode()
-        table.reset()
+    for generation in range(generation_count):
+        print(f"Starting generation {generation+1}...")
+        policy.update_actions(epsilon)
+        for _ in range(episode_count):
+            table.dealInitial()
+            table.playEpisode()
+            table.reset()
+        print(f"Generation {generation+1} complete.")
 
     policy.save(save_policy_name)
     print(f"Training complete. Policy saved as '{save_policy_name}.MonteCarlo'")
@@ -37,7 +41,7 @@ def evaluate_agent(episodes:int, policy_name: str = None) -> None:
     if policy_name:
         policy.load(policy_name)
         print(f"Loaded policy from {policy_name}.MonteCarlo")
-    agent = Agent(policy, epsilon=0.15, win_reward=2)
+    agent = Agent(policy)
     table.add(agent)
 
     # Track Stats
@@ -107,21 +111,41 @@ def evaluate_agent(episodes:int, policy_name: str = None) -> None:
     print(f"Draws: {draws} ({draw_rate:.1f}%)")
     print(f"Final {window_size}-episode running win rate: {final_running_avg:.1f}%")
 
-    print(agent.policy.policy)
+    #print(agent.policy.policy)
+    
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run a Blackjack RL simulation or interactive game.")
     parser.add_argument("--train", type=int, help="Train a new agent with the specified number of episodes.")
     parser.add_argument("--eval", type=int, help="Evaluate an agent over the specified number of episodes.")
     parser.add_argument("--policy", type=str, help="Policy filename base (without extension) for saving or loading.")
+    parser.add_argument("--inspect", type=str, help="Policy filename to inspect.")
+    parser.add_argument("--gen", type=int, help="Number of generations to run. Default 50.")
+    parser.add_argument("--epsilon", type=float, help="Probability of choosing a random action. Defualt 0.05 (5%).")
     args = parser.parse_args()
 
+    if args.gen:
+        generations = args.gen
+    else:
+        generations = 50
+
+    if args.epsilon:
+        epsilon = args.epsilon
+    else:
+        epsilon = 0.05
+        
     if args.train:
         if not args.policy:
             print("Please provide a policy name with --policy to save the training results.")
         else:
-            train_agent(args.train, args.policy)
+            print(generations)
+            print(epsilon)
+            train_agent(args.train, generations, epsilon, args.policy)
     elif args.eval:
         evaluate_agent(args.eval, args.policy)
+    elif args.inspect:
+        policy = MonteCarlo()
+        policy.load(args.inspect)
+        pprint(policy.actions)
     else:
         print("Please specify --train or --play along with necessary arguments.")

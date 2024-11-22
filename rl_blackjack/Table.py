@@ -1,6 +1,5 @@
 from Actions import Action
 from Agent import Agent
-from Player import Player
 from Dealer import Dealer
 from MonteCarlo import MonteCarlo
 from Shoe import Shoe
@@ -101,23 +100,27 @@ if __name__ == "__main__":
     policy = MonteCarlo()
 
     # Add agents to the table
-    table.add(Agent(policy, epsilon=0.0))
+    table.add(Agent(policy, epsilon=0.5))
 
-    episode_count=1000
-    for _ in range(episode_count):
-        table.dealInitial()
+    episode_count=10
+    generation_count = 10
+    for generation in range(generation_count):
+        policy.update_actions(0.5)
+        for _ in range(episode_count):
+            table.dealInitial()
 
-        # Print each agent's initial hand
-        for i, agent in enumerate(table.agents):
-            print(f"Agent {i+1} initial hand:", agent.hand)
-        print(f"Dealer initial hand: {dealer.checkHand()}\n")
+            # Print each agent's initial hand
+            for i, agent in enumerate(table.agents):
+                print(f"Agent {i+1} initial hand:", agent.hand)
+            print(f"Dealer initial hand: {dealer.checkHand()}\n")
 
-        table.playEpisode()
+            table.playEpisode()
 
-        # Show final hands and values
-        print("Dealer's final hand: ", "Value:", dealer.calculateHand()," | ", dealer.hand)
-        for i, agent in enumerate(table.agents):
-            print(f"Agent {i+1}'s final hand:", "Value:", agent.calculateHand()," | ", agent.hand)
-            #print(agent.policy.policy)
-        table.reset()
+            # Show final hands and values
+            print("Dealer's final hand: ", "Value:", dealer.calculateHand()," | ", dealer.hand)
+            for i, agent in enumerate(table.agents):
+                print(f"Agent {i+1}'s final hand:", "Value:", agent.calculateHand()," | ", agent.hand)
+                #print(agent.policy.policy)
+            table.reset()
 
+    #print(policy.policy)

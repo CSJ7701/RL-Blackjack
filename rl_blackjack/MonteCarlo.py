@@ -1,5 +1,6 @@
 import os
 import pickle
+from random import random, choice
 from Actions import Action
 from typing import Dict, Tuple
 
@@ -10,6 +11,7 @@ class MonteCarlo:
         # Values are actions, initially set to "HIT" for simplicity
 
         self.policy: Dict[Tuple[int,int],Dict[Action,float]] = {}
+        self.actions: Dict[Tuple[int,int],Action] = {}
         self.state_count: Dict[Tuple[Tuple[int,int],Action],int] = {} # Counts the number of times a state has been visited. For discounting?
 
     def initialize_state(self, state: Tuple[int,int]) -> None:
@@ -58,6 +60,30 @@ class MonteCarlo:
 
         return max(self.policy[state].items(), key=lambda k: k[1])[0]
 
+    def update_actions(self, epsilon: float) -> None:
+        """
+        Use the given state/value actions (self.policy) to populate a fixed policy associating states with actions.
+        """
+        for state in self.policy.keys():
+            if random() < epsilon:
+                best_action = self.get_best_action(state)
+                possible_actions = [action for action in Action if action != best_action]
+                action = choice(possible_actions) if possible_actions else best_action
+            else:
+                action = self.get_best_action(state)
+            self.actions[state] = action
+
+    def get_policy(self, state: Tuple[int,int]) -> Action:
+        """
+        Return the on-policy action defined in the current policy (self.actions).
+        If there is no known on-policy action, hit.
+        :param state: The agent's current state.
+        """
+        if state not in self.actions.keys():
+            return Action.HIT
+        else:
+            return self.actions[state]
+
     def save(self, filename: str) -> None:
         """
         Save the policy to a .MonteCarlo file.
@@ -66,6 +92,7 @@ class MonteCarlo:
         full_filename = f"{filename}.MonteCarlo"
         with open(full_filename, 'wb') as f:
             pickle.dump(self.policy, f)
+            pickle.dump(self.actions,f)
         print(f"Policy saved to {full_filename}")
 
     def load(self, filename: str) -> None:
@@ -80,5 +107,6 @@ class MonteCarlo:
             return
         with open(full_filename, 'rb') as f:
             self.policy = pickle.load(f)
+            self.actions = pickle.load(f)
         print(f"Policy loaded from {full_filename}")
         

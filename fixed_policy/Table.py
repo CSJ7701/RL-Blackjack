@@ -146,7 +146,7 @@ if __name__ == "__main__":
     table.add(agent)
 
 
-    episode_count=500000
+    episode_count=100000
     for _ in tqdm(range(episode_count), desc="Running Episodes...", bar_format="{desc} ({n_fmt} of {total_fmt})"):
         table.dealInitial()
         table.playEpisode()

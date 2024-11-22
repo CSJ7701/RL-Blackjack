@@ -43,7 +43,7 @@ class Agent:
 
         return value
 
-    def playTurn(self, dealer_hand: int) -> Action:
+    def playTurn_legacy(self, dealer_hand: int) -> Action:
         state = (self.calculateHand(), dealer_hand)
         self.stateUpdate(dealer_hand)
         if random() < self.epsilon:
@@ -54,6 +54,13 @@ class Agent:
         else:
             action = self.policy.get_best_action(state)
         self.stateActions.append(action) # Keep track of the actions taken, in order
+        return action
+
+    def playTurn(self, dealer_hand: int) -> Action:
+        state = (self.calculateHand(), dealer_hand)
+        self.stateUpdate(dealer_hand)
+        action = self.policy.get_policy(state)
+        self.stateActions.append(action)
         return action
 
     def stateUpdate(self, dealer_hand: int) -> None:
@@ -72,11 +79,6 @@ class Agent:
         Receive a reward from the table class, and use it to update every state/action pair in this hand.
         :param reward: The reward from win/loss/draw in this hand.
         """
-        # print(f"States: {self.states}")
-        # print(f"Actions: {self.stateActions}")
-        # for state, action in zip(self.states, self.stateActions):
-            # print(f"State: {state} with action {action} = {reward}")
-        # print(self.policy.state_count)
         for state, action in zip(self.states, self.stateActions):
             self.policy.update(state, action, reward)
 
